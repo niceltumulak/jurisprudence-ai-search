@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard – Jurisprudence AI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #0f1419;
+      color: #f5f7fa;
+      padding: 2rem;
+    }
+
+    .dashboard {
+      max-width: 1600px;
+      margin: 0 auto;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      border-bottom: 1px solid #2d3748;
+      padding-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 2rem;
+      color: #3b82f6;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .metric-card {
+      background: #1a202c;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .metric-value {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #3b82f6;
+      margin-bottom: 0.5rem;
+    }
+
+    .metric-label {
+      color: #a0aec0;
+      font-size: 0.9rem;
+    }
+
+    .panel {
+      background: #1a202c;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .panel h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: #f5f7fa;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      background: #2d3748;
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: #cbd5e0;
+      border: 1px solid #2d3748;
+    }
+
+    td {
+      padding: 1rem;
+      border: 1px solid #2d3748;
+      color: #cbd5e0;
+    }
+
+    tr:hover {
+      background: #2d3748;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: #dc2626;
+    }
+
+    .btn-small {
+      padding: 0.4rem 0.8rem;
+      font-size: 0.85rem;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #f5f7fa;
+      font-weight: 500;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 0.75rem;
+      background: #2d3748;
+      border: 1px solid #4a5568;
+      border-radius: 6px;
+      color: #f5f7fa;
+      font-family: inherit;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.7rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .status-active {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
+
+    .status-inactive {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .status-pending {
+      background: rgba(245, 158, 11, 0.2);
+      color: #f59e0b;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h1>⚙️ Admin Dashboard</h1>
+      <button class="btn btn-danger btn-small" onclick="adminLogout()">Logout</button>
+    </div>
+
+    <!-- Key Metrics -->
+    <div class="metrics">
+      <div class="metric-card">
+        <div class="metric-value" id="activeUsers">0</div>
+        <div class="metric-label">Active Users</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="dbLoad">0%</div>
+        <div class="metric-label">Database Load</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="apiHealth">🟢</div>
+        <div class="metric-label">API Health</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="monthlyRevenue">₱0</div>
+        <div class="metric-label">Monthly Revenue</div>
+      </div>
+    </div>
+
+    <!-- User Management -->
+    <div class="panel">
+      <h2>User Management</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Name</th>
+            <th>Plan</th>
+            <th>Status</th>
+            <th>Joined</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="userTable">
+          <tr>
+            <td colspan="6" style="text-align: center; color: #a0aec0;">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- API Key Management -->
+    <div class="panel">
+      <h2>API Key Rotation</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Key (Masked)</th>
+            <th>Status</th>
+            <th>Last Rotated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="apiKeysTable">
+          <tr>
+            <td colspan="5" style="text-align: center; color: #a0aec0;">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+      <button class="btn btn-primary" onclick="showRotateKeyForm()" style="margin-top: 1rem;">Add / Rotate Key</button>
+    </div>
+
+    <!-- Index Management -->
+    <div class="panel">
+      <h2>Case Index Management</h2>
+      <div style="margin-bottom: 1.5rem;">
+        <button class="btn btn-primary" onclick="triggerReindexing()">Trigger Re-indexing</button>
+        <button class="btn btn-primary" onclick="viewScrapingLogs()" style="margin-left: 0.5rem;">View Scraping Logs</button>
+      </div>
+      <div id="indexStatus" style="color: #a0aec0;">
+        <p>Index Status: <strong style="color: #10b981;">Ready</strong></p>
+        <p>Last Updated: <strong>Never</strong></p>
+        <p>Total Cases Indexed: <strong>0</strong></p>
+      </div>
+    </div>
+
+    <!-- Add/Rotate API Key Form (Hidden) -->
+    <div id="keyForm" style="display: none; margin-bottom: 2rem; background: #2d3748; padding: 1.5rem; border-radius: 8px;">
+      <h3 style="margin-bottom: 1rem;">Rotate API Key</h3>
+      <div class="form-group">
+        <label for="keyService">Service</label>
+        <select id="keyService">
+          <option value="claude-api">Claude API</option>
+          <option value="lawphil-scraper">Lawphil Scraper</option>
+          <option value="vectorize-api">Vectorize API</option>
+        </select>
+      </div>
+      <div style="display: flex; gap: 1rem;">
+        <button class="btn btn-primary" onclick="submitKeyRotation()">Rotate</button>
+        <button class="btn" style="background: #4a5568; color: #f5f7fa;" onclick="cancelKeyForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const adminToken = localStorage.getItem('adminToken');
+    if (!adminToken) {
+      window.location.href = '/admin-login.html';
+    }
+
+    async function fetchAdminData() {
+      try {
+        const response = await fetch('/api/admin/metrics', {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        if (response.ok) {
+          const data = await response.json();
+          document.getElementById('activeUsers').textContent = data.activeUsers || 0;
+          document.getElementById('dbLoad').textContent = data.dbLoad + '%';
+          document.getElementById('monthlyRevenue').textContent = `₱${(data.monthlyRevenue || 0).toLocaleString()}`;
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/admin/users', {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        if (response.ok) {
+          const users = await response.json();
+          const tableBody = document.getElementById('userTable');
+          tableBody.innerHTML = users.map(user => `
+            <tr>
+              <td>${user.email}</td>
+              <td>${user.name}</td>
+              <td>${user.plan}</td>
+              <td><span class="status-badge status-active">${user.status}</span></td>
+              <td>${new Date(user.created_at).toLocaleDateString()}</td>
+              <td>
+                <button class="btn btn-small" style="background: #0891b2; color: white;" onclick="editUser('${user.id}')">Edit</button>
+                <button class="btn btn-small btn-danger" onclick="suspendUser('${user.id}')" style="margin-left: 0.25rem;">Suspend</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Load users error:', error);
+      }
+    }
+
+    async function loadApiKeys() {
+      try {
+        const response = await fetch('/api/admin/api-keys', {
+          headers: { Authorization: `Bearer ${adminToken}` },
+        });
+        if (response.ok) {
+          const keys = await response.json();
+          const tableBody = document.getElementById('apiKeysTable');
+          tableBody.innerHTML = keys.map(key => `
+            <tr>
+              <td>${key.service}</td>
+              <td>${maskKey(key.key_value)}</td>
+              <td><span class="status-badge status-${key.status}">${key.status}</span></td>
+              <td>${new Date(key.rotated_at).toLocaleDateString()}</td>
+              <td>
+                <button class="btn btn-small btn-danger" onclick="deleteKey('${key.id}')">Delete</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Load API keys error:', error);
+      }
+    }
+
+    function maskKey(key) {
+      return key.substring(0, 6) + '*'.repeat(Math.max(0, key.length - 10)) + key.substring(Math.max(6, key.length - 4));
+    }
+
+    function showRotateKeyForm() {
+      document.getElementById('keyForm').style.display = 'block';
+    }
+
+    function cancelKeyForm() {
+      document.getElementById('keyForm').style.display = 'none';
+    }
+
+    async function submitKeyRotation() {
+      const service = document.getElementById('keyService').value;
+      try {
+        const response = await fetch('/api/admin/api-keys/rotate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({ service }),
+        });
+        if (response.ok) {
+          alert('Key rotated successfully');
+          cancelKeyForm();
+          loadApiKeys();
+        }
+      } catch (error) {
+        alert('Key rotation failed');
+      }
+    }
+
+    function deleteKey(keyId) {
+      if (confirm('Are you sure?')) {
+        // Implement delete
+      }
+    }
+
+    function editUser(userId) {
+      console.log('Edit user:', userId);
+    }
+
+    function suspendUser(userId) {
+      if (confirm('Suspend this user?')) {
+        console.log('Suspend user:', userId);
+      }
+    }
+
+    function triggerReindexing() {
+      alert('Reindexing started (background job)');
+    }
+
+    function viewScrapingLogs() {
+      console.log('View scraping logs');
+    }
+
+    function adminLogout() {
+      localStorage.removeItem('adminToken');
+      window.location.href = '/';
+    }
+
+    // Load data on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchAdminData();
+      loadUsers();
+      loadApiKeys();
+    });
+  </script>
+</body>
+</html>

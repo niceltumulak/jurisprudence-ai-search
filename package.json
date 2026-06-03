@@ -1,0 +1,32 @@
+{
+  "name": "jurisprudence-ai-search",
+  "version": "1.0.0",
+  "description": "AI-powered RAG search engine for Philippine jurisprudence",
+  "main": "src/worker.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "build": "npm run build:css",
+    "build:css": "tailwindcss -i ./src/styles.css -o ./dist/styles.css --minify",
+    "db:init": "wrangler d1 execute jurisprudence_db --file ./database.sql",
+    "db:seed": "wrangler d1 execute jurisprudence_db --file ./seed.sql"
+  },
+  "keywords": [
+    "philippine-law",
+    "jurisprudence",
+    "rag",
+    "legal-ai",
+    "search-engine"
+  ],
+  "author": "niceltumulak",
+  "license": "MIT",
+  "devDependencies": {
+    "tailwindcss": "^3.3.0",
+    "wrangler": "^3.0.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.9.0",
+    "jose": "^5.0.0"
+  }
+}

@@ -1,0 +1,39 @@
+name = "jurisprudence-ai-search"
+type = "javascript"
+account_id = "YOUR_ACCOUNT_ID"
+workers_dev = true
+route = "https://yoursubdomain.example.com/*"
+
+[env.production]
+routes = [
+  { pattern = "example.com/*", zone_name = "example.com" }
+]
+
+[build]
+command = "npm run build"
+watch_paths = ["src/**/*.js"]
+
+[build.upload]
+format = "modules"
+main = "src/worker.js"
+
+[env.development]
+name = "jurisprudence-ai-search-dev"
+route = "https://dev.example.com/*"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "jurisprudence_db"
+database_id = "YOUR_DB_ID"
+
+[[vectorize]]
+binding = "VECTORIZE"
+index_name = "jurisprudence-cases"
+
+[env.production.d1_databases]
+binding = "DB"
+database_id = "YOUR_PROD_DB_ID"
+
+[[r2_buckets]]
+binding = "CASE_DOCUMENTS"
+bucket_name = "jurisprudence-cases"
